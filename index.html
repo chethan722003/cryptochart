@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoChart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.0.0"></script>
+    
+         
+    
+</head>
+<body class="light-mode">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">CryptoChart</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <button class="btn btn-outline-light" id="darkModeToggle">🌙 Dark Mode</button>
+                          
+                    </li>
+                    <li class="nav-item">
+                        <select class="form-select currency-select" id="currencySelect">
+                            <option value="usd" selected>USD</option>
+                            <option value="eur">EUR</option>
+                            <option value="inr">INR</option>
+                            <option value="gbp">GBP</option>
+                        </select>
+                    </li>
+                    <li class="nav-item">
+                        <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <h1 class="text-center">Crypto Price</h1>
+        <p class="text-center" id="tagline">Track live cryptocurrency prices</p>
+        <div class="row text-center mt-4">
+            <div class="col-md-4">
+                <div class="crypto" id="bitcoin" onclick="showAdvancedChart(['bitcoin'])">
+                    <h2>Bitcoin (BTC)</h2>
+                    <p>Price:$ <span id="btc-price">0.00</span></p>
+                    <a href="https://www.tradingview.com/chart/?symbol=CRYPTO%3ABTCUSD" class="advanced-chart-link">Advanced Chart</a>
+
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="crypto" id="ethereum" onclick="showAdvancedChart(['ethereum'])">
+                    <h2>Ethereum (ETH)</h2>
+                    <p>Price:$ <span id="eth-price">0.00</span></p>
+                    <a href="https://www.tradingview.com/chart/?symbol=CRYPTO%3AETHUSD" class="advanced-chart-link">Advanced Chart</a>
+
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="crypto" id="dogecoin" onclick="showAdvancedChart(['dogecoin'])">
+                    <h2>Dogecoin (DOGE)</h2>
+                    <p>Price:$ <span id="doge-price">0.00</span></p>
+                    <a href="https://www.tradingview.com/chart/?symbol=COINBASE%3ADOGEUSD" class="advanced-chart-link">Advanced Chart</a>
+
+                </div>
+            </div>
+
+            <!-- New Currencies -->
+            
+        </div>
+
+        <!-- Chart Section -->
+        <div class="chart-container mt-5">
+            <canvas id="cryptoChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Login</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name" placeholder="Enter your name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Gmail</label>
+                            <input type="email" class="form-control" id="email" placeholder="Enter your Gmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" placeholder="Enter your password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+    
+            // Send data to the backend
+            fetch('http://localhost:3000/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, email, password }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                if (data.name) {
+                    console.log('User logged in:', data.name);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Login failed');
+            });
+        });
+    </script>
+
+<!-- Hidden Other Section for Litecoin and Ripple -->
+<div class="container mt-4">
+    <h1 class="text-center">Other Crypto Price</h1>
+    <div class="row text-center mt-4">
+        <!-- New Currencies -->
+        <div class="col-md-4">
+            <div class="crypto" id="cardano" onclick="showAdvancedChart(['cardano'])">
+                <h2>Cardano (ADA)</h2>
+                <p>Price:$ <span id="ada-price">0.00</span></p>
+                <a href="https://in.tradingview.com/chart/?symbol=BINANCE%3AADAUSD" class="advanced-chart-link">Advanced Chart</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="crypto" id="solana" onclick="showAdvancedChart(['solana'])">
+                <h2>Solana (SOL)</h2>
+                <p>Price:$ <span id="sol-price">0.00</span></p>
+                <a href="https://in.tradingview.com/chart/?symbol=COINBASE%3ASOLUSD" class="advanced-chart-link">Advanced Chart</a>
+
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="crypto" id="polkadot" onclick="showAdvancedChart(['polkadot'])">
+                <h2>Polkadot (DOT)</h2>
+                <p>Price:$ <span id="dot-price">0.00</span></p>
+                <a href="https://in.tradingview.com/chart/?symbol=COINBASE%3ADOTUSD" class="advanced-chart-link">Advanced Chart</a>
+
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="crypto" id="chainlink" onclick="showAdvancedChart(['chainlink'])">
+                <h2>chainlink</h2>
+                <p>Price:$ <span id="link-price">0.00</span></p>
+                <a href="https://in.tradingview.com/chart/?symbol=COINBASE%3ALINKUSD" class="advanced-chart-link">Advanced Chart</a>
+
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="crypto" id="cardano" onclick="showAdvancedChart(['cardano'])">
+                <h2>cardano</h2>
+                <p>Price:$ <span id="card-price">0.00</span></p>
+                <a href="https://in.tradingview.com/chart/?symbol=BINANCE%3AADAUSD" class="advanced-chart-link">Advanced Chart</a>
+
+            </div>
+        </div>
+    
+        <div class="col-md-4">
+            <div class="crypto" id="solana" onclick="showAdvancedChart(['solana'])">
+                <h2>solana</h2>
+                <p>Price:$ <span id="solana-price">0.00</span></p>
+                <a href="https://in.tradingview.com/chart/?symbol=COINBASE%3ASOLUSD" class="advanced-chart-link">Advanced Chart</a>
+
+            </div>
+        </div>
+    
+        <div class="col-md-4">
+            <div class="crypto" id="polkadot" onclick="showAdvancedChart(['polkadot'])">
+                <h2>polkadot</h2>
+                <p>Price:$ <span id="polkadot-price">0.00</span></p>
+                <a href="https://in.tradingview.com/chart/?symbol=COINBASE%3ADOTUSD" class="advanced-chart-link">Advanced Chart</a>
+
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="crypto" id="binancecoin" onclick="showAdvancedChart(['binancecoin'])">
+                <h2>binancecoin</h2>
+                <p>Price:$ <span id="binan-price">0.00</span></p>
+                <a href="https://in.tradingview.com/chart/?symbol=BINANCE%3ABNBUSDT" class="advanced-chart-link">Advanced Chart</a>
+
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="crypto" id="litecoin" onclick="showAdvancedChart(['litecoin'])">
+                <h2>litecoin</h2>
+                <p>Price:$ <span id="lite-price">0.00</span></p>
+                <a href="https://in.tradingview.com/chart/?symbol=COINBASE%3ALTCUSD" class="advanced-chart-link">Advanced Chart</a>
+
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="crypto" id="uniswap" onclick="showAdvancedChart(['uniswap'])">
+                <h2>uniswap</h2>
+                <p>Price:$ <span id="uniswap-price">0.00</span></p>
+                <a href="https://in.tradingview.com/chart/?symbol=COINBASE%3AUNIUSD" class="advanced-chart-link">Advanced Chart</a>
+
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="crypto" id="vechain" onclick="showAdvancedChart(['vechain'])">
+                <h2>vechain</h2>
+                <p>Price:$ <span id="vechain-price">0.00</span></p>
+                <a href="https://in.tradingview.com/chart/?symbol=BINANCE%3AVETUSD" class="advanced-chart-link">Advanced Chart</a>
+
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="crypto" id="tezos" onclick="showAdvancedChart(['tezos'])">
+                <h2>tezos</h2>
+                <p>Price:$ <span id="tezos-price">0.00</span></p>
+                <a href="https://in.tradingview.com/chart/?symbol=COINBASE%3AXTZUSD" class="advanced-chart-link">Advanced Chart</a>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+    <section id="crypto-history" class="container-fluid my-5">
+        <h2 class="text-center text-primary mb-4">History of Cryptocurrency</h2>
+        <p class="lead text-center mx-auto w-75">
+            Cryptocurrency emerged in 2009 with the creation of Bitcoin by an anonymous individual or group using the pseudonym Satoshi Nakamoto. Bitcoin was introduced as a decentralized digital currency based on blockchain technology, aiming to provide a secure and transparent alternative to traditional currencies. 
+            Over the years, thousands of cryptocurrencies have been developed, with Ethereum, Ripple, and Litecoin becoming notable players. Today, cryptocurrencies are widely used for investments, transactions, and decentralized applications (dApps), revolutionizing the world of finance and technology.
+        </p>
+    </section>
+    <div class="container">
+        <h2 class="text-center">How Cryptocurrencies Work</h2>
+
+        <div class="section" id="blockchain-section" data-bg-url="https://img.freepik.com/free-photo/artistic-blurry-colorful-wallpaper-background_58702-8189.jpg?t=st=1732022797~exp=1732026397~hmac=0d59217106783c134f8bc08e9784f09d78c84213d0f7280deaa2ac673fc26318&w=740">
+            <div class="overlay"></div>
+            <div class="section-content">
+                <h4>1. Blockchain Technology</h4>
+                <p>Cryptocurrencies rely on blockchain technology, which is a decentralized ledger that records all transactions across a network of computers. This ledger consists of a series of blocks linked in a chain, each containing transaction data. The blockchain is maintained by a network of nodes (computers) that collectively ensure the accuracy and immutability of the record.</p>
+            </div>
+        </div>
+
+        <div class="section" id="transactions-section" data-bg-url="https://img.freepik.com/free-photo/artistic-blurry-colorful-wallpaper-background_58702-8189.jpg?t=st=1732022797~exp=1732026397~hmac=0d59217106783c134f8bc08e9784f09d78c84213d0f7280deaa2ac673fc26318&w=740">
+            <div class="overlay"></div>
+            <div class="section-content">
+                <h4>2. Transactions</h4>
+                <p>Users store cryptocurrencies in digital wallets, which can be software-based or hardware-based. Transactions are initiated using these wallets and are secured by cryptographic keys—public keys for receiving funds and private keys for authorizing transactions. When a transaction is made, it is broadcast to the network for validation.</p>
+            </div>
+        </div>
+
+        <div class="section" id="mining-section" data-bg-url="https://img.freepik.com/free-photo/artistic-blurry-colorful-wallpaper-background_58702-8189.jpg?t=st=1732022797~exp=1732026397~hmac=0d59217106783c134f8bc08e9784f09d78c84213d0f7280deaa2ac673fc26318&w=740">
+            <div class="overlay"></div>
+            <div class="section-content">
+                <h4>3. Mining and Consensus Mechanisms</h4>
+                <p>Many cryptocurrencies use mining to validate transactions and secure the network. Miners solve complex mathematical problems to add new blocks to the blockchain and are rewarded with cryptocurrency. Consensus mechanisms, like Proof of Work (PoW) or Proof of Stake (PoS), are used to ensure that all network participants agree on the blockchain's state.</p>
+            </div>
+        </div>
+
+        <div class="section" id="smart-contracts-section" data-bg-url="https://img.freepik.com/free-photo/artistic-blurry-colorful-wallpaper-background_58702-8189.jpg?t=st=1732022797~exp=1732026397~hmac=0d59217106783c134f8bc08e9784f09d78c84213d0f7280deaa2ac673fc26318&w=740">
+            <div class="overlay"></div>
+            <div class="section-content">
+                <h4>4. Smart Contracts</h4>
+                <p>Some cryptocurrencies, such as Ethereum, support smart contracts—self-executing contracts where the terms are encoded directly into the blockchain. These contracts automatically execute and enforce agreed-upon actions when predefined conditions are met, facilitating trustless transactions and applications.</p>
+            </div>
+        </div>
+
+        <div class="section" id="security-section" data-bg-url="https://img.freepik.com/free-photo/artistic-blurry-colorful-wallpaper-background_58702-8189.jpg?t=st=1732022797~exp=1732026397~hmac=0d59217106783c134f8bc08e9784f09d78c84213d0f7280deaa2ac673fc26318&w=740">
+            <div class="overlay"></div>
+            <div class="section-content">
+                <h4>5. Security and Anonymity</h4>
+                <p>Cryptocurrencies use cryptographic techniques to secure transactions and control the creation of new units. While the blockchain ledger is public, users are identified by their public keys rather than personal information, providing a degree of anonymity. The cryptographic security ensures the integrity and immutability of transaction records.</p>
+            </div>
+        </div>
+
+        <div class="section" id="supply-demand-section" data-bg-url="https://img.freepik.com/free-photo/artistic-blurry-colorful-wallpaper-background_58702-8189.jpg?t=st=1732022797~exp=1732026397~hmac=0d59217106783c134f8bc08e9784f09d78c84213d0f7280deaa2ac673fc26318&w=740">
+            <div class="overlay"></div>
+            <div class="section-content">
+                <h4>6. Supply and Demand</h4>
+                <p>The value of cryptocurrencies is influenced by their supply and demand dynamics. Many cryptocurrencies have a capped supply, such as Bitcoin's limit of 21 million coins, which can drive scarcity and affect value. Market demand, investor sentiment, and external factors contribute to the volatility in cryptocurrency prices.</p>
+            </div>
+        </div>
+
+        <div class="section" id="regulation-section" data-bg-url="https://img.freepik.com/free-photo/artistic-blurry-colorful-wallpaper-background_58702-8189.jpg?t=st=1732022797~exp=1732026397~hmac=0d59217106783c134f8bc08e9784f09d78c84213d0f7280deaa2ac673fc26318&w=740">
+            <div class="overlay"></div>
+            <div class="section-content">
+                <h4>7. Regulation and Adoption</h4>
+                <p>The regulatory environment for cryptocurrencies varies by country and can impact their legality, usage, and integration into the financial system. Adoption rates also play a crucial role; as more businesses and individuals accept and use cryptocurrencies, their acceptance and value can increase, influencing their role in the economy.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6">
+            <div class="calculator-container card">
+                <h2 class="calculator-header">Currency Converter</h2>
+                <form id="converter-form">
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount</label>
+                        <input type="number" id="amount" class="form-control" placeholder="Enter amount">
+                    </div>
+                    <div class="mb-3">
+                        <label for="from" class="form-label">From Currency</label>
+                        <select class="form-control" id="from">
+                            <!-- Options will be added dynamically -->
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="to" class="form-label">To Currency</label>
+                        <select class="form-control" id="to">
+                            <!-- Options will be added dynamically -->
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-custom">Convert</button>
+    
+                    <div class="result mt-3 text-center">
+                        <h3 id="result"></h3>
+                    </div>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6">
+            <div class="calculator-container card">
+                <h2 class="calculator-header">Crypto Profit/Loss Calculator</h2>
+                <form id="profitForm">
+                    <div class="mb-3">
+                        <label for="purchasePrice" class="form-label">Purchase Price per Coin (USD)</label>
+                        <input type="number" id="purchasePrice" class="form-control" placeholder="Enter purchase price">
+                    </div>
+                    <div class="mb-3">
+                        <label for="currentPrice" class="form-label">Current Price per Coin (USD)</label>
+                        <input type="number" id="currentPrice" class="form-control" placeholder="Enter current price">
+                    </div>
+                    <div class="mb-3">
+                        <label for="numberOfCoins" class="form-label">Number of Coins</label>
+                        <input type="number" id="numberOfCoins" class="form-control" placeholder="Enter number of coins">
+                    </div>
+                    <button type="button" class="btn btn-custom" onclick="calculateProfit()">Calculate Profit/Loss</button>
+
+                    <div class="mb-3">
+                        <label for="profitLoss" class="form-label">Profit/Loss (USD)</label>
+                        <input type="number" id="profitLoss" class="form-control" placeholder="Profit or Loss" readonly>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row justify-content-center mt-5">
+</div>
+
+
+   <!-- Footer Section -->
+<footer class="bg-dark text-white py-4">
+    <div class="container text-center">
+        <p class="mb-2 text-gradient">&copy; 2024 CryptoChart. All rights reserved.</p>
+        <ul class="list-unstyled mb-0">
+            <li class="d-inline mx-2"><a href="#" class="text-white text-gradient">Home</a></li>
+            <li class="d-inline mx-2"><a href="#" class="text-white text-gradient">About</a></li>
+            <li class="d-inline mx-2"><a href="#" class="text-white text-gradient">Contact</a></li>
+        </ul>
+        <div class="mt-2">
+            <a href="#" class="text-white mx-2"><i class="bi bi-facebook"></i></a>
+            <a href="#" class="text-white mx-2"><i class="bi bi-twitter"></i></a>
+            <a href="#" class="text-white mx-2"><i class="bi bi-linkedin"></i></a>
+        </div>
+    </div>
+</footer>
+
+
+
+    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+</body>
+</html>
